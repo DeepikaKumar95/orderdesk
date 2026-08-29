@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata: { name: inventory-service, namespace: orderdesk, labels: { app: inventory-service } }
+spec:
+  replicas: 1
+  selector: { matchLabels: { app: inventory-service } }
+  template:
+    metadata: { labels: { app: inventory-service } }
+    spec:
+      securityContext: { runAsNonRoot: true }
+      containers:
+        - name: app
+          image: ghcr.io/YOUR_GH_USER/orderdesk/inventory-service:latest
+          ports: [{ containerPort: 8081 }]
+          envFrom: [{ configMapRef: { name: orderdesk-config } }]
+          env:
+            - { name: OTEL_SERVICE_NAME, value: inventory-service }
+            - { name: SPRING_DATASOURCE_USERNAME, valueFrom: { secretKeyRef: { name: sql-creds, key: username } } }
+            - { name: SPRING_DATASOURCE_PASSWORD, valueFrom: { secretKeyRef: { name: sql-creds, key: password } } }
+            - { name: JAVA_TOOL_OPTIONS, value: "-XX:MaxRAMPercentage=75 -javaagent:/otel/agent.jar" }
+          resources: { requests: { cpu: 200m, memory: 512Mi }, limits: { memory: 768Mi } }
+          readinessProbe: { httpGet: { path: /actuator/health/readiness, port: 8081 }, periodSeconds: 5 }
+          livenessProbe:  { httpGet: { path: /actuator/health/liveness,  port: 8081 }, initialDelaySeconds: 40 }
+---
+# KEDA: scale consumers on Kafka lag, capped at the partition count (6) because more consumers than partitions sit idle.
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata: { name: inventory-service, namespace: orderdesk }
+spec:
+  scaleTargetRef: { name: inventory-service }
+  minReplicaCount: 1
+  maxReplicaCount: 6
+  triggers:
+    - type: kafka
+      metadata:
+        bootstrapServers: redpanda.orderdesk.svc:9092
+        consumerGroup: inventory
+        topic: orders.events
+        lagThreshold: "100"

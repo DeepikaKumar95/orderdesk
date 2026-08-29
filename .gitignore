@@ -1,0 +1,12 @@
+target/
+node_modules/
+dist/
+.angular/
+playwright-report/
+test-results/
+bin/
+obj/
+logs/
+*.log
+.idea/
+.vscode/

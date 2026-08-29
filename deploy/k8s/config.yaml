@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: ConfigMap
+metadata: { name: orderdesk-config, namespace: orderdesk }
+data:
+  SPRING_DATASOURCE_URL: "jdbc:sqlserver://sqlserver.orderdesk.svc:1433;databaseName=orderdesk;encrypt=true;trustServerCertificate=true"
+  SPRING_KAFKA_BOOTSTRAP_SERVERS: "redpanda.orderdesk.svc:9092"
+  OTEL_EXPORTER_OTLP_ENDPOINT: "http://otel-collector.observability.svc:4318"
+---
+# Dev only. In AKS this Secret is replaced by a SecretProviderClass (Key Vault CSI driver) + workload identity.
+apiVersion: v1
+kind: Secret
+metadata: { name: sql-creds, namespace: orderdesk }
+type: Opaque
+stringData:
+  username: sa
+  password: "OrderDesk!Pass123"

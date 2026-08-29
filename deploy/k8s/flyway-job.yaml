@@ -1,0 +1,21 @@
+# Migrations run as a Job BEFORE the rollout, so a rolling deploy never races schema changes.
+apiVersion: batch/v1
+kind: Job
+metadata: { name: flyway-order, namespace: orderdesk }
+spec:
+  backoffLimit: 2
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: flyway
+          image: flyway/flyway:10
+          args: ["-url=$(SPRING_DATASOURCE_URL)", "-user=$(USER)", "-password=$(PASSWORD)", "-table=flyway_history_order", "-locations=filesystem:/flyway/sql", "migrate"]
+          envFrom: [{ configMapRef: { name: orderdesk-config } }]
+          env:
+            - { name: USER, valueFrom: { secretKeyRef: { name: sql-creds, key: username } } }
+            - { name: PASSWORD, valueFrom: { secretKeyRef: { name: sql-creds, key: password } } }
+          volumeMounts: [{ name: sql, mountPath: /flyway/sql }]
+      volumes:
+        - name: sql
+          configMap: { name: order-migrations }   # kubectl create configmap order-migrations --from-file=services/order-service/src/main/resources/db/migration

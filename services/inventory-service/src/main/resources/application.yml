@@ -1,0 +1,44 @@
+server:
+  port: 8081
+spring:
+  application.name: inventory-service
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:sqlserver://localhost:1433;databaseName=orderdesk;encrypt=true;trustServerCertificate=true}
+    username: ${SPRING_DATASOURCE_USERNAME:sa}
+    password: ${SPRING_DATASOURCE_PASSWORD:OrderDesk!Pass123}
+  jpa:
+    open-in-view: false
+    hibernate.ddl-auto: validate
+  flyway:
+    table: flyway_history_inventory
+    locations: classpath:db/migration
+  kafka:
+    bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS:localhost:19092}
+    consumer:
+      group-id: inventory
+      auto-offset-reset: earliest
+      enable-auto-commit: false
+      properties:
+        max.poll.records: 50
+        max.poll.interval.ms: 120000
+        partition.assignment.strategy: org.apache.kafka.clients.consumer.CooperativeStickyAssignor
+    listener:
+      ack-mode: record
+      concurrency: 3
+    producer:
+      acks: all
+      properties:
+        enable.idempotence: true
+orderdesk:
+  topics:
+    order-events: orders.events
+    inventory-events: inventory.events
+management:
+  endpoints.web.exposure.include: health,info,metrics,prometheus
+  endpoint.health.probes.enabled: true
+  endpoint.health.group:
+    liveness.include: livenessState
+    readiness.include: readinessState,db
+logging:
+  pattern:
+    level: "%5p [trace_id=%X{trace_id} span_id=%X{span_id}]"
