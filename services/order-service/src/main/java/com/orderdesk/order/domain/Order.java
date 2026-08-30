@@ -1,6 +1,8 @@
 package com.orderdesk.order.domain;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -26,8 +28,10 @@ public class Order {
     @Version
     private long version;
     @Column(name = "created_at", updatable = false)
+    @JdbcTypeCode(SqlTypes.TIMESTAMP)
     private Instant createdAt;
     @Column(name = "updated_at")
+    @JdbcTypeCode(SqlTypes.TIMESTAMP)
     private Instant updatedAt;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)

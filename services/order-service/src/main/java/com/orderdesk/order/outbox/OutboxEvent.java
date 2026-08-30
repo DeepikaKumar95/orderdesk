@@ -1,6 +1,8 @@
 package com.orderdesk.order.outbox;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 import java.time.Instant;
 import java.util.UUID;
 
@@ -14,8 +16,8 @@ public class OutboxEvent {
     @Column(name = "event_type")     private String eventType;
     @Column(columnDefinition = "NVARCHAR(MAX)") private String payload;
     @Column(name = "trace_parent")   private String traceParent;
-    @Column(name = "created_at")     private Instant createdAt;
-    @Column(name = "published_at")   private Instant publishedAt;
+    @Column(name = "created_at")     @JdbcTypeCode(SqlTypes.TIMESTAMP) private Instant createdAt;
+    @Column(name = "published_at")   @JdbcTypeCode(SqlTypes.TIMESTAMP) private Instant publishedAt;
 
     protected OutboxEvent() {}
 

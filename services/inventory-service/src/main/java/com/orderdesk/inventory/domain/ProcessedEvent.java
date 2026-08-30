@@ -1,6 +1,8 @@
 package com.orderdesk.inventory.domain;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.Objects;
@@ -12,7 +14,7 @@ import java.util.UUID;
 public class ProcessedEvent {
     @Id @Column(name = "event_id") private UUID eventId;
     @Id @Column(name = "consumer_group") private String consumerGroup;
-    @Column(name = "processed_at") private Instant processedAt = Instant.now();
+    @Column(name = "processed_at") @JdbcTypeCode(SqlTypes.TIMESTAMP) private Instant processedAt = Instant.now();
     protected ProcessedEvent() {}
     public ProcessedEvent(UUID eventId, String consumerGroup) { this.eventId = eventId; this.consumerGroup = consumerGroup; }
 

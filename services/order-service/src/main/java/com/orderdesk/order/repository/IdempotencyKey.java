@@ -1,6 +1,8 @@
 package com.orderdesk.order.repository;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 import java.time.Instant;
 import java.util.UUID;
 
@@ -9,7 +11,7 @@ import java.util.UUID;
 public class IdempotencyKey {
     @Id @Column(name = "idem_key") private String key;
     @Column(name = "order_id") private UUID orderId;
-    @Column(name = "created_at") private Instant createdAt = Instant.now();
+    @Column(name = "created_at") @JdbcTypeCode(SqlTypes.TIMESTAMP) private Instant createdAt = Instant.now();
     protected IdempotencyKey() {}
     public IdempotencyKey(String key, UUID orderId) { this.key = key; this.orderId = orderId; }
     public UUID getOrderId() { return orderId; }
