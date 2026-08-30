@@ -28,7 +28,7 @@ import { OrderDraftStore } from './order-draft.store';
 
     <ul>
       @for (l of draft.lines(); track $index) {
-        <li>{{ l.sku }} × {{ l.qty }} @ {{ l.unitPrice | currency }}
+        <li>{{ l.sku }} × {{ l.qty }} &#64; {{ l.unitPrice | currency }}
           <button (click)="draft.removeLine($index)">remove</button></li>
       }
     </ul>
