@@ -7,6 +7,8 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.web.ErrorResponse;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -42,8 +44,15 @@ public class GlobalExceptionHandler {
         return withTrace(ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, ex.getMessage()));
     }
 
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    ProblemDetail unreadable(HttpMessageNotReadableException ex) {
+        return withTrace(ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, "Malformed request body"));
+    }
+
     @ExceptionHandler(Exception.class)
     ProblemDetail unexpected(Exception ex) {
+        // Spring MVC exceptions (404 no-such-route, 405, 415, ...) implement ErrorResponse and carry their own status.
+        if (ex instanceof ErrorResponse er) return withTrace(ProblemDetail.forStatusAndDetail(er.getStatusCode(), ex.getMessage()));
         log.error("Unhandled exception", ex);
         return withTrace(ProblemDetail.forStatusAndDetail(HttpStatus.INTERNAL_SERVER_ERROR, "Unexpected error"));
     }
