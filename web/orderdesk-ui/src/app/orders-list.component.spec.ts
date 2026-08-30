@@ -9,6 +9,7 @@ describe('OrdersListComponent search', () => {
     const fixture = TestBed.createComponent(OrdersListComponent);
     const http = TestBed.inject(HttpTestingController);
     fixture.detectChanges();
+    tick(300);                                                     // startWith('') is debounced too, so nothing is sent until the timer fires
 
     http.expectOne(r => r.url === '/api/v1/orders').flush({ content: [], totalElements: 0, number: 0, size: 20 }); // initial
     fixture.componentInstance.customer.setValue('C-1');
