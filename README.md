@@ -1,12 +1,12 @@
 # OrderDesk Modernization
 
-A legacy .NET Framework / WinForms order-operations app strangled into Java 17 + Spring Boot microservices
+A legacy .NET Framework / WinForms order-operations app strangled into Java 25 + Spring Boot microservices
 with Kafka events, an Angular front end, SQL Server under Flyway, OpenTelemetry tracing, Kubernetes
 manifests and Playwright E2E tests. Built as a portfolio project for a Sr. Software Engineer role whose
 JD lists exactly that stack.
 
 ```
-Angular 18 ──HTTP──> order-service (Spring Boot 3, JPA, Flyway)
+Angular 18 ──HTTP──> order-service (Spring Boot 3.5, JPA, Flyway)
                          │ same TX: orders + outbox_events + idempotency_keys
                          ▼
                     outbox relay ──> Kafka topic orders.events (key = orderId, 6 partitions)
@@ -20,7 +20,7 @@ WinForms (legacy) ──feature flag──> HttpOrderRepository ──> order-se
 
 ## Run it
 
-Prereqs: Docker Desktop, JDK 17, Maven, Node 20.
+Prereqs: Docker Desktop, JDK 25, Maven, Node 20.
 
 ```bash
 make up                 # SQL Server, Redpanda, Jaeger, order-service, inventory-service (first build ~3 min)
@@ -54,7 +54,7 @@ UI: see `web/orderdesk-ui/README.md` (one-time `ng new`, then `npm start`). E2E:
 ## Layout
 
 ```
-services/order-service        Java 17, Spring Boot 3.3, Spring Data JPA, Flyway, transactional outbox, KafkaTemplate
+services/order-service        Java 25, Spring Boot 3.5, Spring Data JPA, Flyway, transactional outbox, KafkaTemplate
 services/inventory-service    Spring Kafka consumer (idempotent, DLT), conditional-UPDATE oversell guard
 web/orderdesk-ui              Angular 18 standalone, RxJS switchMap search, NgRx SignalStore draft, interceptor
 legacy/                       .NET Framework WinForms app + extracted Core + xUnit characterization tests
