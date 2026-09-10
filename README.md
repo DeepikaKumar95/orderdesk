@@ -2,8 +2,7 @@
 
 A legacy .NET Framework / WinForms order-operations app strangled into Java 17 + Spring Boot microservices
 with Kafka events, an Angular front end, SQL Server under Flyway, OpenTelemetry tracing, Kubernetes
-manifests and Playwright E2E tests. Built as a portfolio project for a Sr. Software Engineer role whose
-JD lists exactly that stack.
+manifests and Playwright E2E tests. 
 
 ```
 Angular 18 ──HTTP──> order-service (Spring Boot 3, JPA, Flyway)
